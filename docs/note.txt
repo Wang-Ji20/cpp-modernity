@@ -1,0 +1,101 @@
+C++ notebook.
+
+===================
+Build System: CMAKE
+===================
+
+===================
+Syntax
+===================
+
+For historical reasons realated to optimization, the order of evaluation of other expressions
+(e.g., f(x)+g(y)) and of function arguments (e.g., h(f(x),g(y))) is unfortunately unspecified.
+
+0x hex
+0  oct
+ob bin
+1000'000'000 readable split
+
+int i2 {7.8} // C++ style assignment
+
+variable should only be left uninitialized in extremely rare circumstances
+Don't introduce new variable until have a value
+
+use auto unless type range is important
+
+- const
+  const value may be evaluated in runtime. 
+    const int a = sum(v); // OK
+  constexpr value must be evaluated in compile time
+    constexpr int a = 2; // OK, but a = sum(v) no
+
+- pure functions
+  constexpr return type function can accept a variable
+  consteval return type function can not accept a variable
+  They cannot modify non-local variables.
+  They are pure functions.
+
+- reference
+  T a[n]       // T[n]: a is an array of n Ts
+  T* p          // T*: p is a pointer to T
+  T& r          // T&: r is a reference to T
+  T f(A)        // T(A): f is a function taking an argument of type A returning a result of type T
+  read-only reference const T&
+
+use nullptr
+
+- if
+  if-statement can introduce a variable like GO
+  
+  if (auto n = v.size(); n != 0) {}
+
+  Keep the scope of variable small
+
+in cpp, struct and class only differs in default permisssion
+
+// enum have classes
+// enum class Color {red, blue, green};
+// enum class Traffic_light {green, yellow, red};
+
+// Color col = Color::red;
+
+// enum classes can have methods, custom operators.
+// C style enum is also allowed in C++
+
+use variant rather than union
+
+==========
+modularity
+==========
+
+divide interface and implementation
+  interface: declaration
+  implementation: body
+
+use module and namespace
+// the time of modules hasnt came... alas...
+
+using carefully
+
+Parameters:
+  small objects: pass by value
+  read only: const &
+
+we can use default values
+
+Return Value:
+  small: pass by value
+  grant access & modify nonlocal: pass by reference
+  big object: std::move (compiler optimization)
+  DO NOT RETURN POINTERS
+  suffix return type
+    auto sqrt(double) -> double;
+
+structured binding:
+  for some simple structs
+  main.cc: 16
+
+==============
+error handling
+==============
+throw try catch
