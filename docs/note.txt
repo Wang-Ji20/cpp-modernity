@@ -1,8 +1,53 @@
 C++ notebook.
 
+[TOC]
+
+1. build system
+2. Syntax
+3. modularity
+4. Error handling
+5. classes
+6. Essential Operations
+
 ===================
 Build System: CMAKE
 ===================
+
+Typical C++ Project Layout
+
+./ root
+
+./src or lib
+  source code. will eventually compiler to a library (.a or .dll)
+
+./include
+  headers. may in the src folder
+
+./tools
+  source code. will somehow become an execuable program.
+  uses library function in ./src
+
+./thirdparty
+  third party libs
+
+./test(s)
+  test functions
+
+./utils
+  shell/python/perl/tcl scripts
+
+./docs
+  documentation
+
+./build
+  in .gitignore. where cmake generate its build system and builds the software
+
+./www
+  if you have websites...
+
+cmake manages all these.
+
+
 
 ===================
 Syntax
@@ -99,3 +144,219 @@ structured binding:
 error handling
 ==============
 throw try catch
+
+Don't overuse try-catch. most functions should simply allow the exception
+to be PROPAGATED up the call stack.
+
+INVARIANTS invariants
+  when we are writing functions, it's important to think our program
+  as invariants. i.e. some property must be hold during the execution
+  phase.
+
+  use error handling function to ensure these invariants hold.
+
+  class invariants: constructor & destructor ensure this
+
+  usually try-blocks are very rare. use RAII technique
+
+  // quote from A Tour of C++
+
+
+We return an error indicator (an “error code”) when:
+
+    A failure is normal and expected. For example, it is quite normal for a request
+    to open a file to fail (maybe there is no file of that name or maybe the file cannot
+    be opened with the permissions requested).
+
+    An immediate caller can reasonably be expected to handle the failure.
+
+    An error happens in one of a set of parallel tasks and we need to know which task failed.
+
+    A system has so little memory that the run-time support for exceptions would crowd out
+    essential functionality.
+
+We throw an exception when:
+
+    An error is so rare that a programmer is likely to forget to check for it. For example,
+    when did you last check the return value of printf()?
+
+    An error cannot be handled by an immediate caller. Instead, the error has to percolate
+    back up the call chain to an “ultimate caller.” For example, it is infeasible to have
+    every function in an application reliably handle every allocation failure and network
+    outage. Repeatedly checking an error-code would be tedious, expensive, and error-prone.
+    The tests for errors and passing error-codes as return values can easily obscure the main
+    logic of a function.
+
+    New kinds of errors can be added in lower-modules of an application so that higher-level
+    modules are not written to cope with such errors. For example, when a previously
+    single-threaded application is modified to use multiple threads or resources are placed
+    remotely to be accessed over a network.
+
+    No suitable return path for errors codes is available. For example, a constructor does
+    not have a return value for a “caller” to check. In particular, constructors may be
+    invoked for several local variables or in a partially constructed complex object so
+    that clean-up based on error codes would be quite complicated. Similarly, an
+    operators don’t usually have an obvious return path for error codes. For example, a*b+c/d.
+
+    The return path of a function is made more complicated or more expensive by a need to
+    pass both a value and an error indicator back (e.g., a pair; §15.3.3 ), possibly leading
+    to the use of out-parameters, non-local error-status indicators, or other workarounds.
+
+    The recovery from errors depends on the results of several function calls, leading to
+    the need to maintain local state between calls and complicated control structures.
+
+    The function that found the error was a callback (a function argument), so the immediate
+    caller may not even know what function was called.
+
+    An error implies that some “undo action” is needed (§5.2.2).
+
+We terminate when
+
+    An error is of a kind from which we cannot recover. For example, for many – but not all
+    – systems there is no reasonable way to recover from memory exhaustion.
+
+    The system is one where error-handling is based on restarting a thread, process, or
+    computer whenever a non-trivial error is detected.
+
+ASSERTIONS
+  if NDEBUG is defined, do nothing
+
+  static assertions: assertion in compile time. emit compiler error messages
+
+NOEXPECT
+  turn throw to terminate
+
+Use error codes when an immediate caller is expected to handle the error; §4.4.
+
+Throw an exception for errors expected to percolate up through many function calls; §4.4.
+
+=========
+Classes
+=========
+
+copy assignment and copy initializations are implicitly defined
+
+The const specifiers on the functions indicate that these functions do not modify
+the object for which they are called. A const member function can be invoked for
+both const and non-const objects, but a non-const member function can only be invoked for non-const objects.
+
+RAII: Resource Acquisition Is initialization
+  eliminate naked new and delete operations
+  init new obj in constructor and destory it in deconstructor
+
+1. concrete class
+2. abstract class
+prefer concrete class when possible 'cause it's easier
+
+VIRTUAL functions
+  only can be accessed by pointer or reference to base class
+  use override to show we override the base virtual function (and hint compiler to check.)
+
+class hierarchies. allocate on the free store using new. 
+access by pointers / reference
+
+construct top-bottom
+deconstruct bottom-top
+
+use dynamic_cast to cast base class pointer to derived class pointer
+if not expected. it will return nullptr;
+if must cast, use dynamic_cast<T&>. will throw if type wrong
+
+avoid resource leak. do not use C pointers
+use unique_ptrs. when unique_ptr goes out of scope it will auto delete
+
+=======================
+Essential Operations
+=======================
+
+```c++
+
+class X {
+public:
+        X(Sometype);                    // “ordinary constructor”: create an object
+        X();                                     // default constructor
+        X(const X&);                     // copy constructor
+        X(X&&);                             // move constructor
+        X& operator=(const X&); // copy assignment: clean up target and copy
+        X& operator=(X&&);        // move assignment: clean up target and move
+        ~X();                                  // destructor: clean up
+        // ...
+};
+
+```
+
+here are five situations in which an object can be copied or moved:
+
+    As the source of an assignment
+
+    As an object initializer
+
+    As a function argument
+
+    As a function return value
+
+    As an exception
+
+An assignment uses a copy or move assignment operator. 
+In principle, the other cases use a copy or move constructor. 
+
+=default: generate these, omit others
+=delete: do not generate this
+add explicit keyword before constructor: no auto type conversion!
+class value can have default value.
+
+COPY
+  default copy: memberwise
+  but it can be harmful in many circumstances
+  so we define our own version.
+
+MOVE
+  copy can be expensive.
+  if we never use original variable again, we can move
+  use std::move to tell compiler that you want to cast x a rvalue
+  and move it to the left.
+
+RESOURCE MANAGEMENT
+  resources: memory, locks, sockets, file handlers, thread handlers...
+  by:
+  - constructors
+  - copy
+  - move
+  - destructor
+  we can control the lifetime of a contained resource totally
+  use resource handlers such as Vector smart pointers to manage resource
+    rather than by hand new delete
+  make pointers, new delete disappear
+  Do Not Litter -> no garbage collector.
+
+Operator Overloading
+  cannot overload .
+  must be member function: = ->  () []
+  symmetric operands (+ *): better define outside
+ comparison
+  paired operator may be implenmented in pair...
+  == is symmetric so best define outside the class
+  spaceship comparison <=>
+    negative less than
+    0 equal (however == cannot use 'cause may be more efficient define a standalone == )
+    positive more than
+  if use spaceship, we define == and <=>
+ Container
+  handle + essential operators
+  iterator begin() end()
+   sort(v.begin(), v.end())
+ swap
+ hash<K>
+
+User-Defined Literals
+  constexpr complex<double> operator""i(long double arg)     // imaginary literal
+  {
+        return {0,arg};
+  }
+
+  i means if the suffix is i, the literal is complex literal
+  arg is the thing before i
+
+============
+Templates
+============
