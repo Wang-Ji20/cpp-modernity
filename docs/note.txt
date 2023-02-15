@@ -8,6 +8,7 @@ C++ notebook.
 4. Error handling
 5. classes
 6. Essential Operations
+7. Templates
 
 ===================
 Build System: CMAKE
@@ -349,6 +350,8 @@ Operator Overloading
  hash<K>
 
 User-Defined Literals
+  "asas"s is C++ string
+
   constexpr complex<double> operator""i(long double arg)     // imaginary literal
   {
         return {0,arg};
@@ -360,3 +363,47 @@ User-Defined Literals
 ============
 Templates
 ============
+typename === class
+can take value arguments
+(except string. string use char*)
+
+for all T s.t. P(T)  concept
+template <P T>
+
+parameterized operations
+- function template
+- function object ( overload () )
+- lambda expressions
+  1. capture
+    [] capture nothing
+    [a] capture a
+    [&a] capture a by reference
+    [=] capture all local by value
+    [&] capture all by reference
+    [this] capture current object by reference
+  2. parameter 3. body ...
+  [](auto& s) {}
+  auto makes this lambda expression generic
+  we can use lambdas to init a value;
+
+advanced Templates
+- variable Templates
+template<typename T, typename T2>
+constexpr bool Assignable = is_assignable<T&, T2>::value;
+
+- aliases
+  using size_t = unsigned int;
+  using value_type = T;
+  using String_map = Map<string, Value> // partial
+
+
+- if constexpr() -- compile time testing
+
+  if constexpr (is_trivally_copyable_v<T>)
+    g(arg);
+  else {
+    try {
+      g(arg);
+    } catch...
+  }
+

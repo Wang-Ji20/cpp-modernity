@@ -29,7 +29,7 @@ auto structbind(void) -> void {
 }
 
 // try-catch clause
-auto visitFourOfVector(Vector& v) -> double {
+auto visitFourOfVector(Vector<double>& v) -> double {
   double val = 0;
   try {
     val = v[3];

@@ -3,29 +3,30 @@
 #include "datastructure/Container.hh"
 #include <initializer_list>
 
-class Vector : public Container{
+template <typename T = double>
+class Vector : public Container {
 public:
   // constructors
   Vector(int s);
   // default is bad... no allocated space
   Vector() = delete;
-  Vector(std::initializer_list<double>);
-  
+  Vector(std::initializer_list<T>);
+
   // copy operators
-  Vector(const Vector& a);
-  Vector& operator=(const Vector& a);
+  Vector(const Vector &a);
+  Vector &operator=(const Vector &a);
 
   // move operators
-  Vector(Vector&& a);
-  Vector& operator=(Vector&& a);
+  Vector(Vector &&a);
+  Vector &operator=(Vector &&a);
 
-  double &operator[](int i) override;
-  double operator[](int i) const;
+  T &operator[](int i) override;
+  T operator[](int i) const;
   int size() const override;
 
-  ~Vector() { delete [] elem;}
+  ~Vector() { delete[] elem; }
 
 private:
-  double *elem;
+  T *elem;
   int sz;
 };

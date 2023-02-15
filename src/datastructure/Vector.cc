@@ -3,7 +3,9 @@
 #include <cassert>
 #include <stdexcept>
 
-Vector::Vector(int s) {
+
+template<typename T>
+Vector<T>::Vector(int s) {
   if (s < 0)
     throw std::length_error{"Vector constructor: neg size"};
 
@@ -11,20 +13,23 @@ Vector::Vector(int s) {
   sz = s;
 }
 
-Vector::Vector(std::initializer_list<double> lst)
+template<typename T>
+Vector<T>::Vector(std::initializer_list<T> lst)
     : elem{new double[lst.size()]}, sz{static_cast<int>(lst.size())} {
   std::copy(lst.begin(), lst.end(), elem);
 }
 
 // copy
 
-Vector::Vector(const Vector &a) : elem{new double[a.sz]}, sz{a.sz} {
+template<typename T>
+Vector<T>::Vector(const Vector &a) : elem{new double[a.sz]}, sz{a.sz} {
   for (int i = 0; i != sz; i++) {
     elem[i] = a.elem[i];
   }
 }
 
-Vector& Vector::operator=(const Vector &a) {
+template<typename T>
+Vector<T>& Vector<T>::operator=(const Vector &a) {
   double* p = new double[a.sz];
   for (int i = 0; i != a.sz; i++) {
     p[i] = a.elem[i];
@@ -36,12 +41,14 @@ Vector& Vector::operator=(const Vector &a) {
 }
 
 // move
-Vector::Vector (Vector&& a) : elem{a.elem}, sz{a.sz} {
+template<typename T>
+Vector<T>::Vector (Vector&& a) : elem{a.elem}, sz{a.sz} {
   a.elem = nullptr;
   a.sz = 0;
 }
 
-Vector& Vector::operator=(Vector&& a) {
+template<typename T>
+Vector<T>& Vector<T>::operator=(Vector&& a) {
   sz = a.sz;
   a.sz = 0;
   double *p = elem;
@@ -52,8 +59,8 @@ Vector& Vector::operator=(Vector&& a) {
 }
 
 
-
-double &Vector::operator[](int i) {
+template<typename T>
+T &Vector<T>::operator[](int i) {
   if (!(0 < i && i < size()))
     // Google C++ Style discourage throw...
     // They use error code & assert instead.
@@ -61,15 +68,18 @@ double &Vector::operator[](int i) {
   return elem[i];
 }
 
-double Vector::operator[](int i) const {
+template<typename T>
+T Vector<T>::operator[](int i) const {
   expect([i, this] { return 0 <= i && i < size(); }, Error_code::range_error);
   assert(0 <= i);
   return elem[i];
 }
 
-int Vector::size() const { return sz; }
+template<typename T>
+int Vector<T>::size() const { return sz; }
 
-bool operator==(const Vector &v1, const Vector &v2) {
+template<typename T>
+bool operator==(const Vector<T> &v1, const Vector<T> &v2) {
   if (v1.size() != v2.size())
     return false;
   for (int i = 0; i < v1.size(); i++) {
@@ -79,7 +89,8 @@ bool operator==(const Vector &v1, const Vector &v2) {
   return true;
 }
 
-Vector operator+(const Vector& a, const Vector& b) {
+template<typename T>
+Vector<T> operator+(const Vector<T>& a, const Vector<T>& b) {
   if (a.size() != b.size())
     throw;
   
@@ -91,3 +102,11 @@ Vector operator+(const Vector& a, const Vector& b) {
   // costly
   return res;
 }
+
+// iterators
+template<typename T>
+T* begin(Vector<T>& x) { return &x[0]; }
+
+template<typename T>
+T* end(Vector<T>& x) { return &x[0] + x.size(); }
+
