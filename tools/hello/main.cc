@@ -1,8 +1,12 @@
+#include <iterator>
+#include <concepts>
 #include <stdexcept>
 #include <string>
 #include <variant>
 #include <map>
 #include <iostream>
+#include <chrono>
+
 #include "datastructure/Vector.hh"
 #include "datastructure/Container.hh"
 
@@ -41,7 +45,7 @@ auto visitFourOfVector(Vector<double>& v) -> double {
 }
 
 // if throw, terminate
-void alwaysokfunc() noexcept {
+void alwaysokayfunc() noexcept {
   return;
 }
 
@@ -56,7 +60,66 @@ void use (Container& c) {
   }
 }
 
+// Concept Sequence Number
+template <typename B>
+concept Boolean =
+        requires(B x, B y) {
+          {x = true};
+          {x = false};
+          {x = (x == y)};
+          {x = (x != y)};
+          {x  = !x};
+          {x  = (x = y)};
+        };
+
+template<typename T, typename T2 =T>
+concept Equality_comparable =
+        requires (T a, T2 b) {
+                { a == b } -> Boolean;        // compare a T to a T2 with ==
+                { a != b } -> Boolean;         // compare a T to a T2 with !=
+                { b == a } -> Boolean;        // compare a T2 to a T with ==
+                { b != a } -> Boolean;        // compare a T2 to a T with !=
+        };
+
+template <typename T, typename U  = T>
+concept Number =
+        requires (T x, T y) {
+          x+y; x-y; x*y; x/y;
+          x+=y; x-=y; x*=y; x/=y;
+          x=x;
+          x=0;
+        };
+
+template <typename T, typename U = T>
+concept Arithmetic = Number<T, U> && Number <U, T>;
+
+template<typename S>
+concept Sequence = requires (S a) {
+  typename std::ranges::range_value_t<S>;
+  typename std::ranges::iterator_t<S>;
+
+  { a.begin() } -> std::same_as<std::ranges::iterator_t<S>>;
+  { a.end() } -> std::same_as<std::ranges::iterator_t<S>>;
+
+  requires std::input_iterator<std::ranges::iterator_t<S>>;
+  requires std::same_as<std::ranges::range_value_t<S>, std::iter_value_t<S>>;
+};
+
+template<Sequence Seq, Number Num>
+Num sum(Seq s, Num v) {
+  for (const auto& x : s)
+    v += x;
+  return v;
+}
+
+template <std::random_access_iterator Iter>
+void advance(Iter p, int n) {
+  p += n;
+  
+}
+
 int main(void) {
+  // auto d = std::chrono::May/1/2020;
   printf("hello, world\n");
   stdvariant();
   structbind();

@@ -407,3 +407,49 @@ constexpr bool Assignable = is_assignable<T&, T2>::value;
     } catch...
   }
 
+DO NOT BELIEVE CLANGD AUTO IMPORT IT SUCKS
+
+- concepts
+  The concepts specified for a template are used to check arguments at
+  the point of use of the template.
+  They are not used to check the use of the parameters in the definition of the template. 
+
+  The keyword auto denotes the least constrained concept for a value:
+    it simply requires that it must be a value of some type. 
+    Taking an auto parameter makes a function into a function template.
+    auto f(auto x) {return x;}
+  
+  A type
+
+    Specifies the set of operations that can be applied to an object, implicitly and explicitly
+
+    Relies on function declarations and language rules
+
+    Specifies how an object is laid out in memory
+
+ A single-argument concept
+
+    Specifies the set of operations that can be applied to an object, implicitly and explicitly
+
+    Relies on use patterns reflecting function declarations and language rules
+
+    Says nothing about the layout of the object
+
+    Enables the use of a set of types
+
+  Good abstractions are carefully grown from concrete examples
+  
+  The process of generalizing from a concrete piece of code (and preferably from several) while preserving performance is called lifting. Conversely, the best way to develop a template is often to
+
+    first, write a concrete version
+
+    then, debug, test, and measure it
+
+    finally, replace the concrete types with template arguments.
+
+- variadic Templates
+  ...
+  At the point of use, the arguments for a template are checked against its concepts.
+  Errors found here will be reported immediately. What cannot be checked at this point,
+  such as arguments for unconstrained template parameters, is postponed until code is
+  generated for the template with a set of template arguments: “at template instantiation time.”

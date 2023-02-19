@@ -1,3 +1,4 @@
+#pragma once
 // function behaves like golang defer
 
 template <class F>

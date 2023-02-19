@@ -1,0 +1,416 @@
+Standard library
+
+The facilities provided by the standard library can be classified like this:
+
+    Run-time language support (e.g., for allocation, exceptions, and run-time type information).
+
+    The C standard library (with very minor modifications to minimize type system violations).
+
+    Strings with support for international character sets, localization, and read-only views of substrings
+
+    Support for regular expression matching (§10.4).
+
+    I/O streams is an extensible framework for input and output to which users can add their
+    own types, streams, buffering strategies, locales, and character sets (Chapter 11). It also
+    offers facilities for flexible output formatting (§11.6.2).
+
+    A library for manipulating file systems in a portable manner (§11.9).
+
+    A framework of containers (such as vector and map; Chapter 12) and algorithms (such as
+    find(), sort(), and merge(); Chapter 13). This framework, conventionally called the STL [Stepanov,1994],
+    is extensible so users can add their own containers and algorithms.
+
+    Ranges (§14.1), including views (§14.2), generators (§14.3), and pipes (§14.4).
+
+    Concepts for fundamental types and ranges (§14.5).
+
+    Support for numerical computation, such as standard mathematical functions, complex numbers, vectors
+    with arithmetic operations, mathematical constants, and random-number generators (§5.2.1 and Chapter 16).
+
+    Support for concurrent programming, including threads and locks (Chapter 18). The concurrency support is
+    foundational so that users can add support for new models of concurrency as libraries.
+
+    Synchronous and asynchronous coroutines (§18.6).
+
+    Parallel versions of most STL algorithms and of some numerical algorithms,
+    such as sort() (§13.6) and reduce() (§17.3.1).
+
+    Utilities to support metaprogramming (e.g., type functions; §16.4), STL-style generic programming
+    (e.g., pair; §15.3.3), and general programming (e.g., variant and optional; §15.4.1, §15.4.2).
+
+    “Smart pointers” for resource management (e.g., unique_ptr and shared_ptr; §15.2.1).
+
+    Special-purpose containers, such as array (§15.3.1), bitset (§15.3.2), and tuple (§15.3.3).
+
+    Support for absolute time and durations, e.g., time_point and system_clock (§16.2.1).
+
+    Support for calendars, e.g., month and time_zone (§16.2.2, §16.2.3).
+
+    Suffixes for popular units, such as ms for milliseconds and i for imaginary (§6.6).
+
+    Ways of manipulating sequences of elements, such as views (§14.2), string_views (§10.3), and spans (§15.2.2).
+
+namespaces:
+
+
+    std::chrono: all facilities from chrono, including std::literals::chrono_literals (§16.2).
+
+    std::literals::chrono_literals: suffixes y for years, d for days, h for hours, min for minutes, ms for milliseconds, ns for nanoseconds, s for seconds, and us for microseconds (§16.2).
+
+    std::literals::complex_literals: suffixes i for imaginary doubles, if for imaginary floats, and il for imaginary long doubles (§6.6).
+
+    std::literals::string_literals: suffix s for strings (§6.6, §10.2).
+
+    std::literals::string_view_literals: suffix sv for string views (§10.3).
+
+    std::numbers for mathematical constants (§17.9).
+
+    std::pmr for polymorphic memory resources (§12.7).
+
+===============
+Strings & Regex
+===============
+  str.substr()
+  str.replace()
+  string is an alias for basic_string<char>
+  string_views ( kind of like go slice.. ) a (pointer length) pair denoting a sequence of characters
+    can traverse
+    using namespace std::literals::string_view_literals;
+    we can use "sassa"sv to represent a string_view literal
+    read-only
+  raw string literal R"asasas"
+
+  regular expression
+  // TODO
+
+===============
+Input & Output
+===============
+  C I/O no type safety, not extensible
+
+  I/O Stream library -- formatted and unformatted buffered I/O
+  ostream: values -> ostream -> buffer
+  istream: buffer -> istream -> value
+
+  io state
+  iostream stores many information
+  is.eof() test state == eof?
+  is.fail() failed?
+  setstate() set a state
+  is.get(c) don’t ignore whitespace...
+  overload << >> for custom type
+
+  output formatting
+    1) traditional too complicated
+    2) format string
+      -- before cpp 20 use format library
+      -- cpp 20 use std::format. like rust
+          cout << format("hhh, {}", arg)
+          add optional info in {}.
+          out-of-order precision
+  
+  streams
+    The standard streams are
+    cout for “ordinary output”
+    cerr for unbuffered “error output”
+    clog for buffered “logging output”
+    cin for standard input.
+
+    filestreams
+    ifstream -- read
+    ofstream -- write
+    fstream -- rdwr
+
+    string streams
+    istringstream -- read
+    ostringstream -- write
+    stringstream -- rdwr
+
+    memory streams
+    cpp 23
+
+    sync streams
+    osyncstream oss(cout);
+    thread-safe. but cannot prevent direct cout <<
+    
+    if not use c io, ios_base::sync_with_stdio(false);
+
+- file system
+  <filesystem>
+  type path.
+    check exists()
+    check is_regular_file()
+
+==========
+containers
+==========
+
+  vector
+    use at() when range checking needed
+    generally we use vector..
+    push_back() v.s. emplace_back()
+    c.push_back(x) Add x at the end of c; increase the size of c by one
+    c.emplace_back(a) Add value_type{a} at the end of c; increase the size of c by one
+
+  list -- double linked list
+    iterator
+    insert erase
+
+  forward_list - singlle linked list
+    can only one way iterate
+    count requires iterate
+  
+  map - key-value
+    red-black tree
+    need < operator
+    find()
+  
+  unordered_map - key-value
+    hashmap
+    need a hash function (usually a function object)
+    need == operator
+
+  Allocators
+    overload new & delete
+    provide pool allocators, security, per-thread allocator...
+    pool allocator: pmr namespace
+
+  multimap, deque, set, unordered_set, queue, stackm priority_queue ...
+
+==========
+algorithms
+==========
+
+  iterator
+    find() if not found then == end()
+    an algorithm operates on iterator. know nothing about containers
+    ++ go next * get value 
+    modify number of sequences' elements: back_inserter
+    stream iterators
+      ostream_iterator output, = means output
+      istream_iterator treat input stream as a read-only container
+        must provide a eos {}
+      
+  predicates
+    find_if
+  
+  overview
+    for_each
+    find
+    count
+    replace
+    copy
+    unique_copy
+    move
+    sort
+    merge
+
+  Parallel algorithms
+    <execution>
+    unseq -- SIMD
+    par -- parallel
+    just a hint
+    avoid data races & deadlock
+
+
+======
+ranges
+======
+  generalization of {begin(), end()}
+  template<forward_range R>
+         requires sortable<iterator_t<R>>
+  void my_sort(R& r)                            // modern, concept-constrained version of my_sort
+  {
+         return my_sort(r.begin(),end());       // use the 1994-style sort
+  }
+
+  views
+  filter_view only take from range that satisfies predicate p
+  take_view take x elems from range
+  take_while_view
+  reverse_view
+  drop_view...
+
+  generators
+  v=iota_view{x}
+  istream_view
+  ...
+
+  pipelines
+  void user(forward_range auto& r)
+  {
+        for (int x : r | views::filter([](int x) { return x % 2; } ) | views::take(3) )
+                 cout << x <<' ';
+  }
+
+  useful concepts
+  same_as
+  derived_from
+  convertible_to
+  swappable...
+  more check ch14
+
+=======================
+Pointers and containers
+=======================
+  family of pointers
+
+  T* A built-in pointer type: points to an object of type T
+    or to a contiguously-allocated sequence of elements of type T
+
+  T& A built-in reference type: refers to an object of type T;
+      a pointer with implicit dereference (§1.7)
+
+  unique_ptr<T> An owning pointer to a T
+
+  shared_ptr<T> A pointer to an object of type T;
+                ownership is shared among all shared_ptr’s to that T
+
+  weak_ptr<T>   A pointer to an object owned by a shared_ptr;
+                must be converted to a shared_ptr to access the object
+
+  span<T>       A pointer to a contiguous sequence of Ts (§15.2.2)
+
+  string_view<T>  A pointer to a const sub-string (§10.3)
+
+  X_iterator<C>   A sequence of elements from C;
+
+
+  Don’t retain a pointer to a local object after the object goes out of scope. 
+  In particular, never return a pointer to a local object from a function or
+  store a pointer of uncertain provenance in a long-lived data structure.
+  Systematic use of containers and algorithms (Chapter 12, Chapter 13) often
+  saves us from employing programming techniques that make it hard to avoid pointer problems.
+
+  Use owning pointers to objects allocated on the free store.
+
+  Pointers to static objects (e.g., global variables) can’t dangle.
+
+  Leave pointer arithmetic to the implementation of resource handles
+    (such as vectors and unordered_maps).
+
+  Remember that string_views and spans are kinds of non-owning pointers.
+
+- unique_ptrs & shared_ptr
+  object is destroyed when unique_ptr go out of scope
+  or last of shared_ptr go out of scope
+
+  unique: move on return stat
+  shared: copy on return stat
+
+  prefer unique_pointers
+
+  make_unique & make_shared
+
+- span
+  like string_view, but mutable and for any type
+  (pointer, length) pair denoting a sequence of elements
+
+- containers
+  almost Containers
+
+  T[N] Built-in array: a fixed-size contiguously allocated sequence of N
+       elements of type T; implicitly converts to a T*
+  array<T,N> A fixed-size contiguously allocated sequence of N elements
+            of type T; like the built-in array, but with most problems solved
+            (conversion to pointer must be explicit)
+  bitset<N> A fixed-size sequence of N bits
+  vector<bool> A sequence of bits compactly stored in a specialization of vector
+  pair<T,U> Two elements of types T and U
+            use struct binding
+  tuple<T...> A sequence of an arbitrary number of elements of arbitrary types
+  basic_string<C> A sequence of characters of type C; provides string operations
+  valarray<T> An array of numeric values of type T; provides numeric operations
+
+- Alternatives
+
+Alternatives
+  union A built-in type that holds one of a set of alternatives (§2.5)
+  variant<T...> One of a specified set of alternatives (in <variant>)
+  optional<T> A value of type T or no value (in <optional>)
+              optional equivlent to nullptr is {}
+              must test whether have value
+  any A value one of an unbounded set of alternative types (in <any>)
+
+===========
+Utilities
+===========
+
+  Time
+  <chrono>
+  clocks system_clock return a time_point
+  duration comes from clock - clock, use duration_cast to cast it
+  used for program measurement
+  std::chrono_literals allows us to write 10ms+33us
+  Calendars
+    weekday
+    format {:%A} full week name
+    .ok() test valid date
+    += days %B month full name
+  timezone
+    zoned_time ztp {current_zone(), system_clock::now()};
+  
+  Function Adaption
+    use lambda expression
+    mem_fn
+    function type ( function object )
+
+  Type Functions
+    function argument is type
+    numeric_limits
+    <type_traits>
+    is_arithmetic_v<X>
+    invoke_result_t
+    decltype
+    concepts
+    type predicates.. lots of them
+    nowadays we use concepts....
+
+    type predicates
+    template<typename T>
+    class Smart_pointer {
+         // ...
+         T& operator*() const;
+         T* operator->() const requires is_class_v<T>;         // -> is defined if and only if T is a class
+    };
+
+    type generators
+    enable_if
+
+  source_location
+    source_location::current()
+  
+  move
+    compiler choose move or copy implicitly.
+    sometimes must use move
+    !! unique_ptr object move, must use move
+    use return move is redundant
+
+  bit manipulating
+    <bit>
+    bit_cast<uint64_t>
+    std::byte or unsigned int is best
+  
+  exit
+    exit() abort() quick_exit() terminate()
+
+============
+    Numerics
+============
+  <cmath>
+  complex number version <complex>
+  err in <cerrno>
+  <numeric> accumulate, inner product, partial sum, gcd, ...
+  parallel version: reduce, exclusive_scan
+
+  random numbers: engine + distribution
+  random_device
+
+  vector arithmetic
+    use <valarray> type
+
+  numeric_limits
+  <stdint> type alias
+  constants may be template or number
+
+  
